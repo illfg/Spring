@@ -66,9 +66,11 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 */
 	public AnnotationConfigApplicationContext() {
 
-		//注解类的读取器
+		//一个简便的适配器用于注册带注释的bean类。
 		this.reader = new AnnotatedBeanDefinitionReader(this);
 
+		//用于发现类路径下的候选bean的扫描器
+		//注册相应的bean到传入的registry中
 		this.scanner = new ClassPathBeanDefinitionScanner(this);
 	}
 

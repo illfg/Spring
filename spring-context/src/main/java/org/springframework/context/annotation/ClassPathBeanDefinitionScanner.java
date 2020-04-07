@@ -35,7 +35,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.PatternMatchUtils;
 
-/**
+/**用于发现类路径下的候选bean的扫描器
+ * 注册相应的bean到传入的registry中
  * A bean definition scanner that detects bean candidates on the classpath,
  * registering corresponding bean definitions with a given registry ({@code BeanFactory}
  * or {@code ApplicationContext}).
@@ -165,6 +166,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 		if (useDefaultFilters) {
 			registerDefaultFilters();
 		}
+		//设置环境与资源加载器
 		setEnvironment(environment);
 		setResourceLoader(resourceLoader);
 	}

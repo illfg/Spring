@@ -12,9 +12,8 @@ public class Enter {
 		context.refresh();
 		//获取bean
 		System.out.println(context.getBean(DemoConfig.class));
+
+
 	}
-
-
-
 
 }

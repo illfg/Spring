@@ -832,10 +832,12 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 							"] with [" + beanDefinition + "]");
 				}
 			}
-			//最后将beanDefinition 放入 beanDefinitionMap中
+			//最后将beanDefinition  放入 beanDefinitionMap中
 			this.beanDefinitionMap.put(beanName, beanDefinition);
 		}
+		//如果没有BeanDefinition存在
 		else {
+			//检查这个工厂的bean创建阶段是否已经开始，即是否有任何bean被标记为同时创建。
 			if (hasBeanCreationStarted()) {
 				// Cannot modify startup-time collection elements anymore (for stable iteration)
 				synchronized (this.beanDefinitionMap) {
@@ -851,8 +853,10 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 					}
 				}
 			}
+			//初始化时在这注册
+			// Still in startup registration phase
 			else {
-				// Still in startup registration phase
+				//注册
 				this.beanDefinitionMap.put(beanName, beanDefinition);
 				this.beanDefinitionNames.add(beanName);
 				this.manualSingletonNames.remove(beanName);

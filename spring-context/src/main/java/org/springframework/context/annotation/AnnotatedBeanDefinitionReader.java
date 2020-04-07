@@ -33,7 +33,8 @@ import org.springframework.core.env.StandardEnvironment;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
-/**
+/** 一个简便的适配器用于注册带注释的bean类。
+ *
  * Convenient adapter for programmatic registration of annotated bean classes.
  * This is an alternative to {@link ClassPathBeanDefinitionScanner}, applying
  * the same resolution of annotations but for explicitly registered classes only.
@@ -130,7 +131,9 @@ public class AnnotatedBeanDefinitionReader {
 	}
 
 
-	/**
+	/**注册一个或多个需要处理的注解类
+	 *
+	 * 原文：
 	 * Register one or more annotated classes to be processed.
 	 * <p>Calls to {@code register} are idempotent; adding the same
 	 * annotated class more than once has no additional effect.
@@ -143,7 +146,7 @@ public class AnnotatedBeanDefinitionReader {
 		}
 	}
 
-	/**
+	/**注册传入的bean类，获取它的注解的metadata
 	 * Register a bean from the given bean class, deriving its metadata from
 	 * class-declared annotations.
 	 * @param annotatedClass the class of the bean
@@ -221,16 +224,25 @@ public class AnnotatedBeanDefinitionReader {
 			@Nullable Class<? extends Annotation>[] qualifiers, BeanDefinitionCustomizer... definitionCustomizers) {
 
 		AnnotatedGenericBeanDefinition abd = new AnnotatedGenericBeanDefinition(annotatedClass);
+
+		//判断其中的@Conditional注解，判断是否需要跳过
 		if (this.conditionEvaluator.shouldSkip(abd.getMetadata())) {
 			return;
 		}
 
+		//设置创建实例的回调
 		abd.setInstanceSupplier(instanceSupplier);
+
+		//解析出生命周期注解的元数据
 		ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(abd);
 		abd.setScope(scopeMetadata.getScopeName());
+		//生成bean的名字
 		String beanName = (name != null ? name : this.beanNameGenerator.generateBeanName(abd, this.registry));
 
+		//处理通用注解
 		AnnotationConfigUtils.processCommonDefinitionAnnotations(abd);
+
+		//传入的特定限定符注释
 		if (qualifiers != null) {
 			for (Class<? extends Annotation> qualifier : qualifiers) {
 				if (Primary.class == qualifier) {
@@ -244,12 +256,18 @@ public class AnnotatedBeanDefinitionReader {
 				}
 			}
 		}
+
+		//自定义的一个或多个工厂的BeanDefinition回调
 		for (BeanDefinitionCustomizer customizer : definitionCustomizers) {
 			customizer.customize(abd);
 		}
 
 		BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(abd, beanName);
+		//应用作用域代理模式
+		//有关确定作用域的代理的详细信息，请参见Spring参考文档中题为“Scoped beans as dependencies”
 		definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
+
+		//注册BeanDefinition
 		BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, this.registry);
 	}
 
