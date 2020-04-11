@@ -115,12 +115,15 @@ public abstract class BeanUtils {
 	 */
 	public static <T> T instantiateClass(Class<T> clazz) throws BeanInstantiationException {
 		Assert.notNull(clazz, "Class must not be null");
+		//是接口无法实例化，报错
 		if (clazz.isInterface()) {
 			throw new BeanInstantiationException(clazz, "Specified class is an interface");
 		}
 		try {
+			//获取构造器
 			Constructor<T> ctor = (KotlinDetector.isKotlinType(clazz) ?
 					KotlinDelegate.getPrimaryConstructor(clazz) : clazz.getDeclaredConstructor());
+			//实例化
 			return instantiateClass(ctor);
 		}
 		catch (NoSuchMethodException ex) {
@@ -146,6 +149,7 @@ public abstract class BeanUtils {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T instantiateClass(Class<?> clazz, Class<T> assignableTo) throws BeanInstantiationException {
+		//类型是否匹配
 		Assert.isAssignable(assignableTo, clazz);
 		return (T) instantiateClass(clazz);
 	}

@@ -79,11 +79,13 @@ abstract class ConfigurationClassUtils {
 	 * @return whether the candidate qualifies as (any kind of) configuration class
 	 */
 	public static boolean checkConfigurationClassCandidate(BeanDefinition beanDef, MetadataReaderFactory metadataReaderFactory) {
+
 		String className = beanDef.getBeanClassName();
 		if (className == null || beanDef.getFactoryMethodName() != null) {
 			return false;
 		}
 
+		//获取注解元数据
 		AnnotationMetadata metadata;
 		if (beanDef instanceof AnnotatedBeanDefinition &&
 				className.equals(((AnnotatedBeanDefinition) beanDef).getMetadata().getClassName())) {
@@ -109,16 +111,20 @@ abstract class ConfigurationClassUtils {
 			}
 		}
 
+		//标记添加了Configuration注解的bd
 		if (isFullConfigurationCandidate(metadata)) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
 		}
+		//标记添加了Configuration注解的bd
 		else if (isLiteConfigurationCandidate(metadata)) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_LITE);
 		}
+		//不是配置类直接返回false
 		else {
 			return false;
 		}
 
+		//看看配置类里有没有order，有就标记一下
 		// It's a full or lite configuration candidate... Let's determine the order value, if any.
 		Integer order = getOrder(metadata);
 		if (order != null) {
@@ -159,11 +165,18 @@ abstract class ConfigurationClassUtils {
 	 * configuration class, just registering it and scanning it for {@code @Bean} methods
 	 */
 	public static boolean isLiteConfigurationCandidate(AnnotationMetadata metadata) {
+		//不考虑接口，直接返回false
 		// Do not consider an interface or an annotation...
 		if (metadata.isInterface()) {
 			return false;
 		}
 
+		//如果有
+		// 		candidateIndicators.add(Component.class.getName());
+		//		candidateIndicators.add(ComponentScan.class.getName());
+		//		candidateIndicators.add(Import.class.getName());
+		//		candidateIndicators.add(ImportResource.class.getName());
+		// 中的其中一个注解，则认为是配置类，返回true
 		// Any of the typical annotations found?
 		for (String indicator : candidateIndicators) {
 			if (metadata.isAnnotated(indicator)) {
@@ -171,6 +184,7 @@ abstract class ConfigurationClassUtils {
 			}
 		}
 
+		//最后看看类里边有没有@Bean的方法
 		// Finally, let's look for @Bean methods...
 		try {
 			return metadata.hasAnnotatedMethods(Bean.class.getName());

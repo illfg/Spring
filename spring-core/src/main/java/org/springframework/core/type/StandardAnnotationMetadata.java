@@ -155,9 +155,11 @@ public class StandardAnnotationMetadata extends StandardClassMetadata implements
 	@Override
 	public Set<MethodMetadata> getAnnotatedMethods(String annotationName) {
 		try {
+			//获取所有声明的方法
 			Method[] methods = getIntrospectedClass().getDeclaredMethods();
 			Set<MethodMetadata> annotatedMethods = new LinkedHashSet<>(4);
 			for (Method method : methods) {
+				//该方法不是桥接方法并且有注解，注解是@Bean，则将方法添加
 				if (!method.isBridge() && method.getAnnotations().length > 0 &&
 						AnnotatedElementUtils.isAnnotated(method, annotationName)) {
 					annotatedMethods.add(new StandardMethodMetadata(method, this.nestedAnnotationsAsMap));
